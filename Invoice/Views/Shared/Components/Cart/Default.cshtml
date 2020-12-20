@@ -1,0 +1,107 @@
+﻿@model IEnumerable<OrderDetail>
+@{
+    Layout = null;
+}
+
+@{
+   // var cart = ViewBag.cart;
+    decimal lineTotal = 0;
+}
+
+<section class="cart-section spad">
+    <div class="container">
+
+        <!-- cart section end -->
+        <section class="cart-section spad">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="cart-table">
+                            <h3>Your Cart</h3>
+                            <div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th class="product-th">Product</th>
+                                            <th class="quy-th no-print"> </th>
+                                            <th class="quy-th">Quantity</th>
+                                            <th class="quy-th no-print"> </th>
+                                            <th class="total-th">total Price</th>
+                                            <th class="total-th">Discount</th>
+                                            <th class="total-th">Net</th>
+                                            @*<th class="size-th no-print">Remove</th>*@
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <tr>
+                                            @if (Model != null)
+                                            {
+
+                                                foreach (var item in Model)
+                                                {
+                                                    decimal total = (item.ItemPrice) * item.Qty;
+                                                    lineTotal = (item.ItemPrice - 0) * item.Qty;
+                                                    //totalCheckOut = totalCheckOut + lineTotal + (lineTotal * 14 / 100);
+                                                    <td class="product-col">
+
+                                                        <div class="pc-title">
+                                                            <h4>@item.Item.ItemName</h4>
+                                                            <p>$@item.ItemPrice.ToString()</p>
+                                                        </div>
+                                                    </td>
+                                                    <td class="total-col no-print">
+
+                                                        @using (Html.BeginForm("AddToCart", "Home", new { id = @item.ItemId, qty = item.Qty - 1, discount = 0 }, FormMethod.Post))
+                                                        {
+                                                            <button type="submit"><i class="fa fa-minus-circle " style="color:deeppink"></i></button>
+                                                        }
+                                                    </td>
+                                                    <td class="total-col">
+                                                        <h4>@item.Qty.ToString()</h4>
+                                                    </td>
+                                                    <td class="total-col no-print">
+                                                        @using (Html.BeginForm("AddToCart", "Home", new { id = @item.ItemId, qty = item.Qty + 1, discount = 0 }, FormMethod.Post))
+                                                        {
+                                                            <button type="submit"><i class="fa fa-plus-circle " style="color:deeppink"></i></button>
+                                                        }
+
+                                                    </td>
+                                                    <td class="total-col"><h4>@total</h4></td>
+                                                    <td class="total-col"><h4>00000</h4></td>
+                                                    <td class="total-col"><h4>@lineTotal</h4></td>
+                                                    @*<td class="size-col no-print"><h4><a href="@Url.Action("RemoveFromCart","Item",new { id=item.ItemId})"><i class="fa fa-remove " style="color:red"></i></a></h4></td>*@
+
+                                                }
+                                            }
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="total-cost">
+                                <p>Tax: <span>14%</span></p>@*/////////lssa*@
+                                <h6>Total <span>@lineTotal</span></h6>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-lg-4 card-right">
+
+                        @*@using (Html.BeginForm("CheckOut", "Item", FormMethod.Post))
+                            {*@
+
+                        <button type="submit" class="site-btn no-print">Proceed to checkout</button>
+
+                        @* }*@
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- cart section end -->
+
+
+    </div>
+
+
+
+</section>

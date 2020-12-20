@@ -1,0 +1,231 @@
+﻿@model Item
+@using Invoice.Models
+
+@{
+    
+    var cart = ViewBag.cart;
+    decimal lineTotal = 0;
+    decimal totalCheckOut = 0;
+    var orderDate = ViewBag.orderDate;
+    //var itemid = 0;
+    //var qty = 1;
+    //var discount = 0;
+    //var orderDateAdded = DateTime.Now;
+
+
+}
+
+<section class="cart-section spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-3 col-lg-3 ">
+                Invoice No <input class="form-control" type="text" disabled placeholder="InvoiceNo. generated automatically" />
+            </div>
+            <div class="col-xl-4 col-lg-3 ">
+                Invoice Date <input class="form-control" id="orderDate" type="date" />
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row">
+            <div class="col-xl-6 col-lg-3 ">
+                Store <select id="storeList" asp-for="Id" class="form-control" asp-items="@(new SelectList(ViewBag.storeList, "Id", "Name"))"></select>
+
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-xl-4 col-lg-2 ">
+                Item <select Id="itemList" name="itemList" class="form-control"></select>
+
+            </div>
+            <div class="col-xl-3 col-lg-2 ">
+
+                Qty <input type="text" class="form-control" id="qty" />
+            </div>
+            <div class="col-xl-3 col-lg-2 ">
+                Unit <select Id="uomList" class="form-control"></select>
+
+            </div>
+            <div class="col-xl-2 col-lg-1 ">
+
+
+                @*@using (Html.BeginForm("AddToCart", "Home", new { id = itemid, qty = qty, discount = 0, orderDate = orderDate }, FormMethod.Post))
+                {
+
+                    <br /><button type="submit" id="btn_chkOut" class="site-btn no-print">Add</button>
+
+                }*@
+            </div>
+
+        </div>
+        @{
+            if (cart != null)
+            {
+                <div class="cart-table">
+                    <h3>Your Cart</h3>
+                    <div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="product-th">Product</th>
+                                    @*<th class="quy-th no-print"> </th>*@
+                                    <th class="quy-th">Quantity</th>
+                                    @*<th class="quy-th no-print"> </th>*@
+                                    <th class="total-th">total Price</th>
+                                    <th class="total-th">Discount</th>
+                                    <th class="total-th">Net</th>
+                                    @*<th class="size-th no-print">Remove</th>*@
+                                </tr>
+                            </thead>
+                            <tbody>
+
+
+
+
+                                @foreach (var item in (List<OrderDetail>)cart)
+                                {
+                                    <tr>
+                                        @{decimal total = (item.ItemPrice) * item.Qty;
+                                            lineTotal = (item.ItemPrice - 0) * item.Qty;
+                                            totalCheckOut = totalCheckOut + lineTotal + (lineTotal * 14 / 100);
+                                        }
+                                        <td class="product-col">
+
+                                            <div class="pc-title">
+                                                <h4>@item.Item.ItemName</h4>
+                                                <p>$@item.ItemPrice.ToString()</p>
+                                            </div>
+                                        </td>
+                                        @*<td class="total-col no-print">
+
+                                            @using (Html.BeginForm("AddToCart", "Home", new { id = @item.ItemId, qty = item.Qty - 1, discount = 0 }, FormMethod.Post))
+                                            {
+                                                <button type="submit"><i class="fa fa-minus-circle " style="color:deeppink"></i></button>
+                                            }
+                                        </td>*@
+                                        <td class="total-col">
+                                            <h4>@item.Qty.ToString()</h4>
+                                        </td>
+                                        @*<td class="total-col no-print">
+                                            @using (Html.BeginForm("AddToCart", "Home", new { id = @item.ItemId, qty = item.Qty + 1, discount = 0 }, FormMethod.Post))
+                                            {
+                                                <button type="submit"><i class="fa fa-plus-circle " style="color:deeppink"></i></button>
+                                            }
+
+                                        </td>*@
+                                        <td class="total-col"><h4>@total</h4></td>
+                                        <td class="total-col"><h4>0</h4></td>
+                                        <td class="total-col"><h4>@lineTotal</h4></td>
+
+                                        @*<td class="size-col no-print"><h4><a href="@Url.Action("RemoveFromCart","Item",new { id=item.ItemId})"><i class="fa fa-remove " style="color:red"></i></a></h4></td>*@
+                                    </tr>
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="total-cost">
+                        <p>Tax: <span>14%</span></p>
+                        <h6>Total <span>@totalCheckOut</span></h6>
+                    </div>
+
+                </div>
+            }
+        }
+
+        <div class="col-lg-4 card-right">
+            @using (Html.BeginForm("CheckOut", "Home", new { requestdate = orderDate }, FormMethod.Post))
+            {
+
+                <button type="submit" id="btn_chkOut" class="site-btn no-print">Proceed to checkout</button>
+
+            }
+        </div>
+
+
+        @* @Html.Partial("AddToCart");*@
+        @* @await Component.InvokeAsync("Cart")*@
+
+
+
+        @section Scripts{
+                <script type="text/javascript">
+                    $(document).ready(function () {
+                        $("#storeList").change(function () {
+                            $("#itemList").empty();
+                            $("#uomList").empty();
+                            $.ajax({
+                                type: 'Get',
+                                url: '@Url.Action("LoadItems")',
+                                dataType: 'json',
+                                data: { storeId: $("#storeList").val() },
+                                success: function (items) {
+                                    $("#itemList").append('<option value="' + -1 + '">' +
+                                        "Select Item" + '</option>');
+                                    $.each(items, function (i, item) {
+                                        $("#itemList").append('<option value="' + item.value + '">' +
+                                            item.text + '</option>');
+                                    });
+                                }
+                            });
+                        });
+                        $("#itemList").change(function () {
+                           
+                            $("#uomList").empty();
+                            $.ajax({
+                                type: 'Get',
+                                url: '@Url.Action("LoadUoms")',
+                                dataType: 'json',
+                                data: { itemId: $("#itemList").val() },
+                                success: function (items) {
+                                    $("#uomList").append('<option value="' + -1 + '">' +
+                                        "Select Unit" + '</option>');
+                                    $.each(items, function (i, item) {
+                                        $("#uomList").append('<option value="' + item.value + '">' +
+                                            item.text + '</option>');
+                                    });
+
+                                }
+
+                            });
+                        });
+                        $("#uomList").change(function () {
+                            $.ajax({
+                                type: 'Post',
+                                url: '@Url.Action("AddToCart")',
+                                //contentType: 'application/json; charset=utf-8',
+
+                               // dataType: 'html'  ,
+                                dataType: 'json',
+                                data: { id: $("#itemList").val(), qty: $("#qty").val(), discount: 0,orderDate:$("#orderDate").val() },
+                               
+                                    success: function (response) {
+                                        alert("Added Successfully" );
+                                    },
+                                    failure: function (response) {
+                                        alert(response.responseText);
+                                    },
+                                    error: function (response) {
+                                        alert(response.responseText);
+                                    }
+                                   
+                                });
+                        });
+
+                    });
+
+                </script>
+
+        }
+    </div>
+
+
+
+</section>
+
+
+
+
